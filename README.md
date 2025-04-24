@@ -4,7 +4,7 @@ MCP Duty Pharma helps you locate pharmacies legally required to stay open during
 
 ## 📋 System Requirements
 
-- Python 3.6+
+- Python 3.10+
 
 ## 📦 Dependencies
 
@@ -29,9 +29,7 @@ All dependencies are specified in `pyproject.toml`.
 - [Dependencies](#-dependencies)
 - [MCP Tools](#%EF%B8%8F-mcp-tools)
 - [Getting Started](#-getting-started)
-- [Installation Options](#-installation-options)
-  - [Claude Desktop](#option-1-install-for-claude-desktop)
-  - [Elsewhere](#option-2-install-elsewhere)
+- [Installation](#-installation)
 - [Safety Features](#-safety-features)
 - [Development Documentation](#-development-documentation)
 
@@ -52,43 +50,32 @@ git clone https://github.com/lsaavedr/mcp-duty-pharma.git
 cd mcp-duty-pharma
 ```
 
-## 📦 Installation Options
+## 📦 Installation
 
-You can install this MCP server in either Claude Desktop or elsewhere. Choose the option that best suits your needs.
-
-### Option 1: Install for Claude Desktop
-
-Install using FastMCP:
-
-```bash
-fastmcp install duty-pharma.py --name "MCP Duty Pharma"
-```
-
-### Option 2: Install elsewhere
-
-To use this server anywhere else, add the following configuration to the settings file:
+You can install this MCP server in either Claude Desktop or elsewhere. To use this server, add the following configuration to the settings file:
 
 - in json format
+
 ```json
 {
   "MCP Duty Pharma": {
     "command": "uv",
-    "args": ["--directory", "abs_path_to/mcp-duty-pharma", "run", "duty-pharma.py"]
+    "args": ["tool", "run", "mcp_duty_pharma"]
   }
 }
 ```
+
 - in yaml format
+
 ```yaml
 mcpServers:
   - name: MCP Duty Pharma
     command: uv
     args:
-      - --directory
-      - abs_path_to/mcp-duty-pharma
+      - tool
       - run
-      - duty-pharma.py
+      - mcp_duty_pharma
 ```
-
 
 🔒 Safety Features
 

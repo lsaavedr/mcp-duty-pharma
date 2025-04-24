@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List
 
 import httpx
@@ -34,8 +34,15 @@ async def get_nearby_duty_pharmacies(address: str) -> List[dict]:
             return []
 
     # Filter pharmacies that are on duty today
-    fecha = datetime.now().isoformat()[0:10]
-    all_pharmacies = list(filter(lambda f: f["fecha"] == fecha, all_pharmacies))
+    now = datetime.now()
+    fecha_hoy = now.isoformat()[0:10]
+    fecha_ayer = (now - timedelta(days=1)).isoformat()[0:10]
+    all_pharmacies = list(
+        filter(
+            lambda f: f["fecha"] == fecha_hoy or f["fecha"] == fecha_ayer,
+            all_pharmacies,
+        )
+    )
 
     # Sort pharmacies by distance to the given address
     location = geocode(address)
