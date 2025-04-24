@@ -1,7 +1,12 @@
+# SPDX-FileCopyrightText: 2025-present Luis Saavedra <luis94855510@gmail.com>
+#
+# SPDX-License-Identifier: MIT
+"""MCP duty pharma."""
+
 from datetime import datetime, timedelta
-from typing import List
 
 import httpx
+import pytz  # type: ignore
 from geopy import distance  # type: ignore
 from geopy.extra.rate_limiter import RateLimiter  # type: ignore
 from geopy.geocoders import Nominatim  # type: ignore
@@ -15,9 +20,13 @@ geocode = RateLimiter(geo_app.geocode, min_delay_seconds=1)
 
 
 @mcp.tool()
-async def get_nearby_duty_pharmacies(address: str) -> List[dict]:
-    """
-    Get ten closest pharmacies on duty today, sorted by distance to the given address.
+async def get_nearby_duty_pharmacies(address: str) -> list[dict]:
+    """Get nearby pharmacies on duty today.
+
+    - sorted by distance to the given address.
+    - only ten closest pharmacies are returned.
+    - only pharmacies on duty today are returned.
+
     """
     headers = {"User-Agent": "mcp-fturno", "Accept": "application/geo+json"}
     async with httpx.AsyncClient() as client:
@@ -29,19 +38,19 @@ async def get_nearby_duty_pharmacies(address: str) -> List[dict]:
                 follow_redirects=True,
             )
             response.raise_for_status()
-            all_pharmacies: List[dict] = response.json()
-        except Exception as e:
+            all_pharmacies: list[dict] = response.json()
+        except httpx.HTTPStatusError:
             return []
 
     # Filter pharmacies that are on duty today
-    now = datetime.now()
+    now = datetime.now(tz=pytz.timezone("America/Santiago"))
     fecha_hoy = now.isoformat()[0:10]
-    fecha_ayer = (now - timedelta(days=1)).isoformat()[0:10]
+    fecha_ayer = (now - timedelta(hours=12)).isoformat()[0:10]
     all_pharmacies = list(
         filter(
             lambda f: f["fecha"] == fecha_hoy or f["fecha"] == fecha_ayer,
             all_pharmacies,
-        )
+        ),
     )
 
     # Sort pharmacies by distance to the given address
@@ -50,7 +59,7 @@ async def get_nearby_duty_pharmacies(address: str) -> List[dict]:
         key=lambda pto: distance.distance(
             (pto["local_lat"], pto["local_lng"]),
             (location.latitude, location.longitude),
-        ).km
+        ).km,
     )
 
     # Return the ten closest pharmacies
