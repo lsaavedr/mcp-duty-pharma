@@ -21,6 +21,7 @@ dependencies = [
     "geopy>=2.4.1",
     "httpx>=0.28.1",
     "mcp[cli]>=1.6.0",
+    "pytz>=2025.2",
 ]
 
 [dependency-groups]

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 """MCP duty pharma."""
 
+import logging
 from datetime import datetime, timedelta
 
 import httpx
@@ -12,10 +13,12 @@ from geopy.extra.rate_limiter import RateLimiter  # type: ignore
 from geopy.geocoders import Nominatim  # type: ignore
 from mcp.server.fastmcp import FastMCP
 
-# Instantiate FastMCP server
-mcp = FastMCP("MCP fturno", dependencies=["geopy", "httpx"])
+logging.basicConfig(level=logging.DEBUG)
 
-geo_app = Nominatim(user_agent="mcp-fturno", timeout=30.0)
+# Instantiate FastMCP server
+mcp = FastMCP("MCP Duty Pharma", dependencies=["geopy", "httpx"])
+
+geo_app = Nominatim(user_agent="mcp-duty-pharma", timeout=30.0)
 geocode = RateLimiter(geo_app.geocode, min_delay_seconds=1)
 
 
@@ -28,7 +31,7 @@ async def get_nearby_duty_pharmacies(address: str) -> list[dict]:
     - only pharmacies on duty today are returned.
 
     """
-    headers = {"User-Agent": "mcp-fturno", "Accept": "application/geo+json"}
+    headers = {"User-Agent": "MCP Duty Pharma", "Accept": "application/json"}
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(
@@ -55,9 +58,24 @@ async def get_nearby_duty_pharmacies(address: str) -> list[dict]:
 
     # Sort pharmacies by distance to the given address
     location = geocode(address)
-    all_pharmacies.sort(
+    valid_pharmacies = []
+    for pharmacy in all_pharmacies:
+        try:
+            lat = float(pharmacy["local_lat"].strip(","))
+            lng = float(pharmacy["local_lng"].strip(","))
+            valid_pharmacies.append(pharmacy)
+            logging.debug(f"Processed lat/lng: {lat}, {lng}")
+        except ValueError as e:
+            logging.error(
+                f"Error processing lat/lng for pharmacy {pharmacy}: {e}"
+            )
+
+    valid_pharmacies.sort(
         key=lambda pto: distance.distance(
-            (pto["local_lat"], pto["local_lng"]),
+            (
+                float(pto["local_lat"].strip(",")),
+                float(pto["local_lng"].strip(",")),
+            ),
             (location.latitude, location.longitude),
         ).km,
     )
@@ -73,7 +91,7 @@ async def get_nearby_duty_pharmacies(address: str) -> list[dict]:
             + pharmacy["funcionamiento_hora_cierre"],
             "zone": pharmacy["localidad_nombre"],
         }
-        for pharmacy in all_pharmacies[:10]
+        for pharmacy in valid_pharmacies[:10]
     ]
 
 
