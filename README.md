@@ -28,7 +28,6 @@ All dependencies are specified in `pyproject.toml`.
 - [System Requirements](#-system-requirements)
 - [Dependencies](#-dependencies)
 - [MCP Tools](#%EF%B8%8F-mcp-tools)
-- [Getting Started](#-getting-started)
 - [Installation](#-installation)
 - [Safety Features](#-safety-features)
 - [Development Documentation](#-development-documentation)
@@ -40,15 +39,6 @@ This MCP server provides the following tools to Large Language Models (LLMs):
 ### get_nearby_duty_pharmacies
 
 - Get ten closest pharmacies on duty today, sorted by distance to the given address.
-
-## 🚀 Getting Started
-
-Clone the repository:
-
-```bash
-git clone https://github.com/lsaavedr/mcp-duty-pharma.git
-cd mcp-duty-pharma
-```
 
 ## 📦 Installation
 
